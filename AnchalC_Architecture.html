@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI System Architecture — ERP Graph Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --bg2: #0a0f1e;
+    --bg3: #0f1628;
+    --card: #111827;
+    --card2: #1a2235;
+    --border: #1e2d4a;
+    --border2: #2a3f5f;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --accent3: #8b5cf6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --glow: 0 0 20px rgba(59,130,246,0.3);
+    --glow2: 0 0 40px rgba(99,102,241,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 5rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .tag::before {
+    content: '▸';
+    animation: blink 1.5s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--text2);
+    max-width: 600px;
+    font-weight: 300;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text3);
+  }
+
+  .meta-item span { color: var(--accent); }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    background: rgba(5, 8, 16, 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 0;
+    z-index: 100;
+  }
+
+  nav .container {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  nav a {
+    color: var(--text3);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  nav a:hover {
+    color: var(--accent);
+    border-color: rgba(59,130,246,0.3);
+    background: rgba(59,130,246,0.05);
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  p { color: var(--text2); margin-bottom: 1rem; font-size: 0.95rem; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border2);
+    box-shadow: var(--glow2);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 1rem;
+    position: relative;
+  }
+
+  .flow-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-num {
+    width: 44px;
+    height: 44px;
+    background: var(--card2);
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: var(--glow);
+  }
+
+  .flow-line {
+    width: 1px;
+    flex: 1;
+    min-height: 24px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    margin-top: 4px;
+  }
+
+  .flow-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .flow-content:hover { border-color: var(--accent2); }
+
+  .flow-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+
+  .flow-content p {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    color: var(--text2);
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #020408;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: #a8b5c8;
+    overflow-x: auto;
+    margin: 1.2rem 0;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 0.6rem;
+    right: 1rem;
+    font-size: 0.6rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .code-block .kw { color: #818cf8; }
+  .code-block .str { color: #34d399; }
+  .code-block .comment { color: #3d5066; font-style: italic; }
+  .code-block .fn { color: #60a5fa; }
+  .code-block .var { color: #f472b6; }
+  .code-block .num { color: #fb923c; }
+
+  /* PILL BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  .badge-blue { background: rgba(59,130,246,0.15); color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-purple { background: rgba(139,92,246,0.15); color: var(--accent3); border: 1px solid rgba(139,92,246,0.3); }
+  .badge-cyan { background: rgba(6,182,212,0.15); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+
+  /* PROMPT ANATOMY */
+  .prompt-box {
+    background: #020408;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .prompt-header {
+    background: var(--card2);
+    padding: 0.6rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .prompt-header span { color: var(--accent); }
+
+  .prompt-section {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.8;
+  }
+
+  .prompt-section:last-child { border-bottom: none; }
+
+  .prompt-section-label {
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .prompt-text { color: #a8b5c8; }
+  .prompt-highlight { color: #34d399; }
+  .prompt-rule { color: #f472b6; }
+  .prompt-var { color: #60a5fa; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-diagram {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arch-diagram::before {
+    content: 'SYSTEM ARCHITECTURE';
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .arch-box {
+    padding: 0.6rem 1.2rem;
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  .arch-arrow {
+    color: var(--text3);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .arch-vline {
+    width: 1px;
+    height: 24px;
+    background: var(--border2);
+    margin: 0 auto;
+  }
+
+  /* FALLBACK TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+
+  th {
+    background: var(--card2);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 0.85rem;
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(59,130,246,0.03); }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    border-left: 3px solid var(--accent);
+    background: rgba(59,130,246,0.05);
+    padding: 1rem 1.5rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.2rem 0;
+  }
+
+  .highlight-box.green { border-color: var(--green); background: rgba(16,185,129,0.05); }
+  .highlight-box.amber { border-color: var(--amber); background: rgba(245,158,11,0.05); }
+  .highlight-box.red { border-color: var(--red); background: rgba(239,68,68,0.05); }
+
+  .highlight-box p { margin-bottom: 0; font-size: 0.9rem; }
+  .highlight-box strong { color: var(--text); font-weight: 500; }
+
+  /* METRICS GRID */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .metric {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .metric-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .metric-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* INTEGRATION GRID */
+  .integration-grid {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin: 1.5rem 0;
+  }
+
+  .int-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem;
+  }
+
+  .int-box h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .int-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .int-box li {
+    font-size: 0.82rem;
+    color: var(--text2);
+    padding: 0.2rem 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .int-box li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--text3);
+    font-size: 0.7rem;
+  }
+
+  .int-arrow {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--text3);
+  }
+
+  /* LAYERS */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 1.5rem 0;
+  }
+
+  .layer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .layer:hover { transform: translateX(4px); border-color: var(--border2); }
+
+  .layer-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text3);
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .layer-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .layer-desc {
+    font-size: 0.8rem;
+    color: var(--text2);
+    flex: 2;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text3);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .integration-grid { grid-template-columns: 1fr; }
+    .int-arrow { transform: rotate(90deg); }
+    .arch-row { gap: 0.3rem; }
+    .arch-box { font-size: 0.6rem; padding: 0.4rem 0.8rem; }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section { animation: fadeUp 0.5s ease both; }
+
+  .glow-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+  <div class="tag">System Architecture Document</div>
+  <h1>AI-Powered <span>ERP Graph</span><br>Intelligence Platform</h1>
+  <p class="subtitle">A production-grade architecture for integrating Large Language Models into a graph-based SAP data query system — with full prompt design, integration strategy, and reliability engineering.</p>
+  <div class="meta-row">
+    <div class="meta-item"><span>Role:</span> Forward Deployed Engineer Assessment</div>
+    <div class="meta-item"><span>Stack:</span> FastAPI · React · SQLite · Gemini</div>
+    <div class="meta-item"><span class="glow-dot"></span> Live Architecture</div>
+  </div>
+</div>
+</header>
+
+<nav>
+<div class="container">
+  <a href="#overview">Overview</a>
+  <a href="#workflow">AI Workflow</a>
+  <a href="#prompts">Prompt Design</a>
+  <a href="#integration">Integration</a>
+  <a href="#fallbacks">Fallbacks</a>
+  <a href="#reliability">Reliability</a>
+  <a href="#layers">Layer Model</a>
+</div>
+</nav>
+
+<!-- SECTION 1: OVERVIEW -->
+<section id="overview">
+<div class="container">
+  <div class="section-label">01 / Overview</div>
+  <h2>System at a Glance</h2>
+  <p>The core design principle: <strong style="color:var(--text)">AI is an interpreter, not a data source.</strong> Every answer the system gives must be grounded in real data from the database. The LLM's job is to translate human intent into precise SQL, then translate raw results back into human language. It never invents facts.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-val">3</div><div class="metric-label">AI Integration Points</div></div>
+    <div class="metric"><div class="metric-val">2</div><div class="metric-label">Guardrail Layers</div></div>
+    <div class="metric"><div class="metric-val">4</div><div class="metric-label">Fallback Strategies</div></div>
+    <div class="metric"><div class="metric-val">5</div><div class="metric-label">Node Entity Types</div></div>
+  </div>
+
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;">👤 User (Natural Language)</div>
+    </div>
+    <div class="arch-vline"></div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.4);color:#818cf8;">React Frontend</div>
+      <div class="arch-arrow">⟷</div>
+      <div class="arch-box" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.4);color:#818cf8;">Graph Visualization</div>
+    </div>
+    <div class="arch-vline"></div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#34d399;">FastAPI Backend</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;">Guardrail Layer</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;">Gemini LLM</div>
+    </div>
+    <div class="arch-vline"></div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;">SQL Executor</div>
+      <div class="arch-arrow">⟷</div>
+      <div class="arch-box" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;">SQLite Database</div>
+      <div class="arch-arrow">⟷</div>
+      <div class="arch-box" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.4);color:#22d3ee;">NetworkX Graph</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Key design decision:</strong>
+    <p>SQLite was chosen over a native graph database (Neo4j/ArangoDB) because the dataset's relationships are relational at heart — a join between <code style="color:var(--cyan);font-family:'Space Mono',monospace;font-size:0.8em">sales_orders</code> and <code style="color:var(--cyan);font-family:'Space Mono',monospace;font-size:0.8em">sales_order_items</code> is faster and more queryable than a graph traversal for this scale. NetworkX is used purely as a visualization layer — a projection of the relational data, not the query engine.</p>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 2: AI WORKFLOW -->
+<section id="workflow">
+<div class="container">
+  <div class="section-label">02 / AI Workflow</div>
+  <h2>How AI Enters the Workflow</h2>
+  <p>The AI is invoked at exactly three points in the request lifecycle. This surgical integration means the system degrades gracefully if the LLM is slow or unavailable — the database and graph still work independently.</p>
+
+  <div class="flow">
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">01</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>User submits natural language query <span class="badge badge-blue" style="margin-left:0.5rem">INPUT</span></h4>
+        <p>The frontend captures the user's question (e.g. "Which plant produced the most items last month?") along with the last 4 messages of conversation history for context. Sent via POST /api/query.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">02</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>Guardrail pre-check <span class="badge badge-amber" style="margin-left:0.5rem">GATE</span></h4>
+        <p>Before the LLM is invoked, a keyword-based filter checks if the query is domain-relevant. This runs in &lt;1ms and prevents wasting API quota on off-topic requests. If blocked, response is returned immediately without touching the LLM.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">03</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>AI invocation #1 — SQL Generation <span class="badge badge-purple" style="margin-left:0.5rem">LLM CALL</span></h4>
+        <p>The query + schema + conversation history are sent to Gemini. The LLM responds with a structured JSON containing a SQLite-compatible SQL query. This is the most critical AI integration point — prompt engineering here determines correctness.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">04</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>SQL validation and execution <span class="badge badge-green" style="margin-left:0.5rem">DATABASE</span></h4>
+        <p>The generated SQL is validated (SELECT-only, no DDL/DML allowed) before execution. Results are fetched from SQLite and serialized. If SQL is invalid, fallback logic triggers without a second LLM call.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">05</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>AI invocation #2 — Answer Synthesis <span class="badge badge-purple" style="margin-left:0.5rem">LLM CALL</span></h4>
+        <p>The raw SQL result rows are sent back to Gemini with a formatting prompt. The model synthesizes a concise, human-readable answer. It also identifies entity IDs mentioned in the answer for graph highlighting.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-num">06</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <h4>Graph highlight + response streaming <span class="badge badge-cyan" style="margin-left:0.5rem">OUTPUT</span></h4>
+        <p>The answer streams back to the frontend word-by-word via Gemini's streaming API. Simultaneously, node IDs extracted from the answer are sent to the graph — matching nodes pulse yellow, and the camera zooms to frame them.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box green">
+    <strong>Why two separate LLM calls instead of one?</strong>
+    <p>Separating SQL generation from answer synthesis gives two major benefits: (1) you can validate and retry the SQL independently without regenerating the whole answer, and (2) the answer synthesis prompt can be given the actual data, not just a description of it — making the response more accurate and grounded.</p>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 3: PROMPT DESIGN -->
+<section id="prompts">
+<div class="container">
+  <div class="section-label">03 / Prompt Design</div>
+  <h2>Prompt Engineering Strategy</h2>
+  <p>Prompt design is where the system's intelligence lives. A poorly designed prompt produces hallucinated SQL, ignored guardrails, and vague answers. The prompts below are engineered with five principles: <strong style="color:var(--text)">Role clarity, Schema grounding, Strict output format, Explicit rules, and Context injection.</strong></p>
+
+  <h3 style="margin-top:2rem;margin-bottom:1rem">Prompt #1 — SQL Generation Prompt</h3>
+  <p>This is the most critical prompt. It must make the model output only valid SQLite syntax, nothing else.</p>
+
+  <div class="prompt-box">
+    <div class="prompt-header">
+      <span>SYSTEM</span> — SQL Generation Prompt · sent on every query
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Role Definition</div>
+      <div class="prompt-text"><span class="prompt-highlight">You are a SQL expert</span> for a SAP ERP system. You translate natural language questions into valid <span class="prompt-highlight">SQLite</span> queries. You are <span class="prompt-rule">NOT</span> a general assistant — you only answer questions about the provided database.</div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Schema Injection (dynamic)</div>
+      <div class="prompt-text">
+        <span class="prompt-var">Database schema:</span><br>
+        TABLE sales_orders: sales_order TEXT PK, transaction_currency TEXT, total_net_amount REAL<br>
+        TABLE sales_order_items: id INT PK, sales_order TEXT FK, sales_order_item TEXT,<br>
+        &nbsp;&nbsp;item_category TEXT, material TEXT, requested_quantity REAL,<br>
+        &nbsp;&nbsp;quantity_unit TEXT, net_amount REAL, material_group TEXT,<br>
+        &nbsp;&nbsp;production_plant TEXT, storage_location TEXT,<br>
+        &nbsp;&nbsp;rejection_reason TEXT, billing_block_reason TEXT<br>
+        TABLE materials: material TEXT PK, material_group TEXT<br>
+        TABLE plants: plant_id TEXT PK
+      </div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Hard Rules</div>
+      <div class="prompt-text">
+        <span class="prompt-rule">RULE 1:</span> Only generate SELECT statements. Never INSERT, UPDATE, DELETE, DROP.<br>
+        <span class="prompt-rule">RULE 2:</span> If the question is NOT about this SAP dataset, set sql to null.<br>
+        <span class="prompt-rule">RULE 3:</span> Always return valid JSON. No markdown, no explanation outside JSON.<br>
+        <span class="prompt-rule">RULE 4:</span> Use LIMIT clauses for queries that could return many rows.<br>
+        <span class="prompt-rule">RULE 5:</span> Empty strings mean no rejection/block — filter with != '' for active blocks.
+      </div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Output Format (enforced)</div>
+      <div class="prompt-text">
+        Return ONLY this JSON:<br>
+        {<br>
+        &nbsp;&nbsp;<span class="prompt-highlight">"sql"</span>: <span class="prompt-var">"SELECT ... FROM ... WHERE ..."</span>,<br>
+        &nbsp;&nbsp;<span class="prompt-highlight">"explanation"</span>: <span class="prompt-var">"Plain English description of what this query does"</span>,<br>
+        &nbsp;&nbsp;<span class="prompt-highlight">"is_domain_relevant"</span>: <span class="prompt-var">true</span><br>
+        }
+      </div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Conversation History (injected dynamically)</div>
+      <div class="prompt-text">
+        <span class="prompt-var">Previous context:</span><br>
+        [User]: Which plant has the most items?<br>
+        [Assistant]: Plant 1920 has 45 items...<br><br>
+        <span class="prompt-var">Current question:</span> <span class="prompt-highlight">{{ user_query }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box amber">
+    <strong>Why inject the schema every time?</strong>
+    <p>LLMs don't have persistent memory between calls. Without the schema, the model would guess column names and hallucinate table structures. Schema injection is non-negotiable — it's what makes the SQL generation reliable. The schema is &lt;300 tokens, well within budget.</p>
+  </div>
+
+  <h3 style="margin-top:2.5rem;margin-bottom:1rem">Prompt #2 — Answer Synthesis Prompt</h3>
+  <p>After SQL executes, this prompt converts raw rows into a natural language response. It's intentionally simple — the model's only job here is formatting, not reasoning.</p>
+
+  <div class="prompt-box">
+    <div class="prompt-header">
+      <span>SYSTEM</span> — Answer Synthesis Prompt · sent after SQL execution
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Task</div>
+      <div class="prompt-text">Convert the following SQL query results into a clear, concise answer to the user's question. Be specific — use the actual numbers and IDs from the data. Do not add information not present in the results.</div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Injected Data</div>
+      <div class="prompt-text">
+        <span class="prompt-var">User question:</span> <span class="prompt-highlight">{{ user_query }}</span><br>
+        <span class="prompt-var">SQL executed:</span> <span class="prompt-highlight">{{ sql }}</span><br>
+        <span class="prompt-var">Results ({{ row_count }} rows):</span><br>
+        <span class="prompt-highlight">{{ results_json }}</span>
+      </div>
+    </div>
+    <div class="prompt-section">
+      <div class="prompt-section-label">Output Requirements</div>
+      <div class="prompt-text">
+        1. Answer in 2-4 sentences max.<br>
+        2. Mention specific IDs/values from the data.<br>
+        3. End with: <span class="prompt-highlight">"NODES: [id1, id2, ...]"</span> listing any sales order or material IDs mentioned.<br>
+        4. If results are empty, say "No records found matching your query."
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block" data-label="EXAMPLE OUTPUT">
+<span class="comment">// User asked: "Which material has the highest total order value?"</span>
+<span class="comment">// LLM Answer Synthesis output:</span>
+
+<span class="str">"Material S8907367001003 has the highest total order value at ₹1,24,832.50 across 12 sales order items. It belongs to material group ZFG1001 and is primarily produced at plant 1920."</span>
+
+<span class="comment">// Node highlighting extraction:</span>
+<span class="kw">NODES</span>: [<span class="str">"S8907367001003"</span>, <span class="str">"ZFG1001"</span>, <span class="str">"1920"</span>]
+  </div>
+
+  <h3 style="margin-top:2.5rem;margin-bottom:1rem">Prompt Design Principles Summary</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h3>Role Clarity</h3>
+      <p style="font-size:0.85rem">Each prompt starts by defining exactly what the model IS and IS NOT. "You are a SQL expert, not a general assistant" prevents the model from answering off-topic questions even if the guardrail is bypassed.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <h3>Schema Grounding</h3>
+      <p style="font-size:0.85rem">The full database schema is injected on every call. Without this, column names are guessed. With it, the model generates SQL that actually executes.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📦</div>
+      <h3>Structured Output</h3>
+      <p style="font-size:0.85rem">Requiring JSON output with exact field names makes parsing deterministic. No regex extraction needed — just JSON.parse().</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>Explicit Prohibitions</h3>
+      <p style="font-size:0.85rem">Rules like "Never INSERT, UPDATE, DELETE" are stated directly. LLMs respect explicit prohibitions better than implicit expectations.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Context Injection</h3>
+      <p style="font-size:0.85rem">The last 4 message pairs are injected as conversation history. This enables follow-up questions like "tell me more about that order" to resolve correctly.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Token Efficiency</h3>
+      <p style="font-size:0.85rem">Prompts are kept minimal. The schema is ~250 tokens. History is capped at 4 turns (~800 tokens). This keeps latency low and stays within free tier limits.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 4: INTEGRATION -->
+<section id="integration">
+<div class="container">
+  <div class="section-label">04 / System Integration</div>
+  <h2>Component Integration Strategy</h2>
+  <p>Each component is loosely coupled via well-defined interfaces. The frontend doesn't know how the graph was built. The LLM doesn't know how its SQL will be executed. This separation means each layer can be swapped independently.</p>
+
+  <div class="integration-grid">
+    <div class="int-box">
+      <h4>Frontend → Backend</h4>
+      <ul>
+        <li>POST /api/query — natural language + history</li>
+        <li>GET /api/graph — graph nodes and links JSON</li>
+        <li>GET /api/schema — table schema for debugging</li>
+        <li>GET /health — liveness check</li>
+        <li>CORS configured for localhost:5173</li>
+      </ul>
+    </div>
+    <div class="int-arrow">⟷</div>
+    <div class="int-box">
+      <h4>Backend → Database</h4>
+      <ul>
+        <li>SQLite via Python's built-in sqlite3 module</li>
+        <li>Connection pooled via FastAPI lifespan</li>
+        <li>Read-only connection mode for query execution</li>
+        <li>Schema loaded once at startup, cached in memory</li>
+        <li>Parameterized queries prevent SQL injection</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="integration-grid">
+    <div class="int-box">
+      <h4>Backend → Gemini API</h4>
+      <ul>
+        <li>google-generativeai Python SDK</li>
+        <li>Model: gemini-1.5-flash (fast, free tier)</li>
+        <li>Async calls — won't block the event loop</li>
+        <li>Streaming enabled for answer synthesis</li>
+        <li>10s timeout with exponential backoff retry</li>
+      </ul>
+    </div>
+    <div class="int-arrow">⟷</div>
+    <div class="int-box">
+      <h4>Backend → Graph Builder</h4>
+      <ul>
+        <li>NetworkX graph built once on server startup</li>
+        <li>Cached in memory — rebuilt on /api/graph refresh</li>
+        <li>Nodes sampled to max 150 for UI performance</li>
+        <li>Node highlight IDs from LLM matched against graph</li>
+        <li>Graph serialized to JSON (nodes + links arrays)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem;margin-bottom:0.8rem">Data Flow: Single Query Lifecycle</h3>
+  <div class="code-block" data-label="REQUEST LIFECYCLE">
+<span class="comment">// Timeline of a single user query</span>
+
+<span class="num">0ms</span>   User types: <span class="str">"Which material has the most rejected items?"</span>
+<span class="num">1ms</span>   Frontend sends POST /api/query { question, history }
+<span class="num">2ms</span>   Guardrail check: <span class="fn">keyword_match</span>(<span class="str">"material"</span>, <span class="str">"rejected"</span>) → <span class="kw">PASS</span>
+<span class="num">3ms</span>   Schema + history + query packed into LLM prompt
+<span class="num">~800ms</span> Gemini returns SQL JSON:
+         { <span class="str">"sql"</span>: <span class="str">"SELECT material, COUNT(*) as cnt FROM sales_order_items WHERE rejection_reason != '' GROUP BY material ORDER BY cnt DESC LIMIT 5"</span> }
+<span class="num">~801ms</span> SQL validated: <span class="fn">is_select_only</span>() → <span class="kw">true</span>
+<span class="num">~802ms</span> SQLite executes query → 5 rows returned
+<span class="num">~803ms</span> Results + original question sent to Gemini for synthesis
+<span class="num">~1200ms</span> Answer streams back token by token to frontend
+<span class="num">~1201ms</span> Node IDs extracted: [<span class="str">"S8907367001003"</span>, <span class="str">"S8907367000327"</span>]
+<span class="num">~1202ms</span> Graph highlights those nodes, camera zooms to frame them
+  </div>
+</div>
+</section>
+
+<!-- SECTION 5: FALLBACKS -->
+<section id="fallbacks">
+<div class="container">
+  <div class="section-label">05 / Fallback Mechanisms</div>
+  <h2>What Happens When AI Fails</h2>
+  <p>The system is designed so that an LLM failure is a degraded experience, not a broken one. There are four distinct failure modes, each with a specific recovery strategy.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Failure Mode</th>
+        <th>Detection</th>
+        <th>Fallback Action</th>
+        <th>User Experience</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-red">SQL Invalid</span><br><small>LLM returns malformed SQL</small></td>
+        <td>SQL parse check before execution; detect non-SELECT statements</td>
+        <td>Return a pre-written error message. Log the bad SQL for analysis. Don't attempt execution.</td>
+        <td>"I couldn't generate a valid query for that. Try rephrasing." — graph unchanged.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">Empty Results</span><br><small>Valid SQL, zero rows</small></td>
+        <td>len(results) == 0 check after execution</td>
+        <td>Skip answer synthesis LLM call. Return template: "No records found."</td>
+        <td>Instant response, no wasted API call. Saves latency.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">API Timeout</span><br><small>Gemini takes &gt;10s</small></td>
+        <td>asyncio.timeout(10) wrapper around every API call</td>
+        <td>Retry once with 2s backoff. On second failure, return fallback string without LLM.</td>
+        <td>"The AI service is slow right now. Try again in a moment." — graph and data still work.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">Bad JSON Response</span><br><small>LLM returns non-JSON</small></td>
+        <td>try/except json.JSONDecodeError on every parse</td>
+        <td>Attempt regex extraction of SQL from response text. If that fails, log and return error.</td>
+        <td>"Couldn't parse the AI response. Please try rephrasing your question."</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-amber">Off-topic Query</span><br><small>Guardrail triggered</small></td>
+        <td>Level 1: keyword check (&lt;1ms). Level 2: LLM self-classification</td>
+        <td>Immediate return at Level 1. For Level 2, model returns is_domain_relevant: false.</td>
+        <td>Styled guardrail response with orange border: "This system only answers questions about the SAP ERP dataset."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="code-block" data-label="FALLBACK LOGIC">
+<span class="kw">async def</span> <span class="fn">safe_query</span>(question: str, history: list) → dict:
+    <span class="comment"># Layer 1: instant keyword guardrail</span>
+    <span class="kw">if not</span> <span class="fn">is_domain_relevant</span>(question):
+        <span class="kw">return</span> { <span class="str">"answer"</span>: GUARDRAIL_MSG, <span class="str">"is_domain_relevant"</span>: <span class="kw">False</span> }
+
+    <span class="comment"># Layer 2: LLM SQL generation with timeout</span>
+    <span class="kw">try</span>:
+        <span class="kw">async with</span> asyncio.timeout(<span class="num">10</span>):
+            llm_response = <span class="kw">await</span> <span class="fn">generate_sql</span>(question, history)
+    <span class="kw">except</span> TimeoutError:
+        <span class="kw">return</span> { <span class="str">"answer"</span>: TIMEOUT_MSG, <span class="str">"error"</span>: <span class="str">"timeout"</span> }
+
+    <span class="comment"># Layer 3: SQL validation before execution</span>
+    sql = llm_response.get(<span class="str">"sql"</span>)
+    <span class="kw">if not</span> sql <span class="kw">or not</span> <span class="fn">is_safe_select</span>(sql):
+        <span class="kw">return</span> { <span class="str">"answer"</span>: INVALID_SQL_MSG, <span class="str">"sql"</span>: sql }
+
+    <span class="comment"># Layer 4: execute and handle empty results</span>
+    results = <span class="fn">execute_query</span>(sql)
+    <span class="kw">if not</span> results:
+        <span class="kw">return</span> { <span class="str">"answer"</span>: <span class="str">"No records found matching your query."</span>, <span class="str">"results"</span>: [] }
+
+    <span class="comment"># Happy path: synthesize answer</span>
+    answer = <span class="kw">await</span> <span class="fn">synthesize_answer</span>(question, sql, results)
+    <span class="kw">return</span> { <span class="str">"answer"</span>: answer, <span class="str">"sql"</span>: sql, <span class="str">"results"</span>: results }
+  </div>
+
+  <div class="highlight-box red">
+    <strong>SQL Injection Prevention:</strong>
+    <p>The system never executes LLM-generated SQL directly. Every query goes through <code style="color:var(--cyan);font-family:'Space Mono',monospace;font-size:0.8em">is_safe_select()</code> which validates: (1) starts with SELECT, (2) contains no semicolons after the first statement, (3) contains no DDL keywords — DROP, CREATE, ALTER, INSERT, UPDATE, DELETE. This makes it safe even if the LLM is adversarially prompted.</p>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 6: RELIABILITY -->
+<section id="reliability">
+<div class="container">
+  <div class="section-label">06 / Reliability Engineering</div>
+  <h2>Building for Production Reliability</h2>
+  <p>A system that works in demos but fails under real use is not production-grade. These reliability patterns are baked into the architecture from day one.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🔁</div>
+      <h3>Idempotent Graph Builds</h3>
+      <p style="font-size:0.85rem">The graph is built from SQLite, not from the JSONL file directly. Running the ingest script twice won't create duplicate nodes — SQLite's PRIMARY KEY constraints and INSERT OR REPLACE semantics ensure clean rebuilds.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Async Everything</h3>
+      <p style="font-size:0.85rem">FastAPI's async endpoints mean the Gemini API call (800ms-2s) never blocks other requests. Multiple users can query simultaneously without queueing. The event loop stays free during I/O waits.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💾</div>
+      <h3>Schema Cached at Startup</h3>
+      <p style="font-size:0.85rem">The database schema is read once on server startup and stored in memory. Every LLM call injects this cached string — no per-request DB metadata queries.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>Read-Only Query Execution</h3>
+      <p style="font-size:0.85rem">The SQLite connection used for LLM-generated queries is opened in read-only mode. Even if the guardrails fail and a destructive query is generated, it cannot execute.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h3>Graph Sampling</h3>
+      <p style="font-size:0.85rem">The graph visualization is capped at 150 nodes. For larger datasets, nodes are sampled by entity type to maintain proportional representation. This keeps the React rendering performant.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗂️</div>
+      <h3>Conversation Memory Cap</h3>
+      <p style="font-size:0.85rem">History is capped at 4 message pairs (~800 tokens). This prevents context window overflow while still enabling meaningful follow-up questions. Older context is dropped from the front.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem;margin-bottom:0.8rem">Guardrail Layer Design</h3>
+  <p>Two independent guardrail layers means bypassing one still hits the other. Defense in depth.</p>
+
+  <div class="layer-stack">
+    <div class="layer" style="background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.2)">
+      <div class="layer-num">L1</div>
+      <div class="layer-name" style="color:var(--amber)">Keyword Filter</div>
+      <div class="layer-desc">Runs in &lt;1ms. Checks if any domain keyword appears in the query. Zero LLM cost. Blocks obvious off-topic queries like "write me a poem" or "what is the capital of France".</div>
+      <span class="badge badge-amber">Fast</span>
+    </div>
+    <div class="layer" style="background:rgba(139,92,246,0.05);border-color:rgba(139,92,246,0.2)">
+      <div class="layer-num">L2</div>
+      <div class="layer-name" style="color:var(--accent3)">LLM Self-Classification</div>
+      <div class="layer-desc">The system prompt instructs Gemini to return is_domain_relevant: false for anything not about the SAP dataset. Catches clever rephrasing that passes keyword filters (e.g. "How many stars are in the sky?" doesn't contain ERP keywords but is clearly off-topic).</div>
+      <span class="badge badge-purple">Smart</span>
+    </div>
+    <div class="layer" style="background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2)">
+      <div class="layer-num">L3</div>
+      <div class="layer-name" style="color:var(--red)">SQL Safety Validator</div>
+      <div class="layer-desc">Even if both L1 and L2 pass, the SQL is validated before execution. Only SELECT statements allowed. This is the last line of defense against prompt injection attacks where a user tries to embed SQL commands in their query.</div>
+      <span class="badge badge-red">Critical</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 7: LAYER MODEL -->
+<section id="layers">
+<div class="container">
+  <div class="section-label">07 / Architecture Layers</div>
+  <h2>Full Stack Layer Model</h2>
+  <p>The system is organized into five clean layers. Each layer has a single responsibility and communicates with adjacent layers only through defined interfaces. This makes the system testable, extensible, and maintainable.</p>
+
+  <div class="layer-stack">
+    <div class="layer" style="background:rgba(59,130,246,0.05);border-color:rgba(59,130,246,0.3)">
+      <div class="layer-num">5</div>
+      <div class="layer-name">Presentation Layer</div>
+      <div class="layer-desc">React + TypeScript. Graph visualization (react-force-graph-2d), chat panel with streaming, node inspector. Purely visual — no business logic. Communicates only with API layer.</div>
+      <span class="badge badge-blue">React</span>
+    </div>
+    <div class="layer" style="background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.3)">
+      <div class="layer-num">4</div>
+      <div class="layer-name">API Layer</div>
+      <div class="layer-desc">FastAPI. Routes, request validation, CORS, response serialization. Orchestrates calls between the AI, database, and graph layers. The system's conductor.</div>
+      <span class="badge badge-green">FastAPI</span>
+    </div>
+    <div class="layer" style="background:rgba(139,92,246,0.05);border-color:rgba(139,92,246,0.3)">
+      <div class="layer-num">3</div>
+      <div class="layer-name">AI Intelligence Layer</div>
+      <div class="layer-desc">LLM service with prompt construction, guardrails, SQL generation, answer synthesis, and node extraction. The system's brain — but always grounded by Layer 2 data.</div>
+      <span class="badge badge-purple">Gemini</span>
+    </div>
+    <div class="layer" style="background:rgba(6,182,212,0.05);border-color:rgba(6,182,212,0.3)">
+      <div class="layer-num">2</div>
+      <div class="layer-name">Data Layer</div>
+      <div class="layer-desc">SQLite database + NetworkX graph. Single source of truth. All LLM answers must be verifiable against this layer. Graph is a view over the relational data, not a separate store.</div>
+      <span class="badge badge-cyan">SQLite + NetworkX</span>
+    </div>
+    <div class="layer" style="background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.3)">
+      <div class="layer-num">1</div>
+      <div class="layer-name">Ingestion Layer</div>
+      <div class="layer-desc">One-time JSONL → SQLite pipeline. Normalizes the flat records into relational tables. Extracts entities (materials, plants, orders) and builds foreign key relationships.</div>
+      <span class="badge badge-amber">Python</span>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:2rem">
+    <strong>What makes this architecture stand out for a Forward Deployed role:</strong>
+    <p>In enterprise ERP deployments, systems must degrade gracefully (a plant can't stop because an API is down), must handle adversarial inputs (users will try to break it), and must be explainable to both technical and non-technical stakeholders. This architecture addresses all three: layered fallbacks for graceful degradation, three-layer guardrails for adversarial resilience, and the SQL-explanation feature for transparency.</p>
+  </div>
+</div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text3);margin-bottom:0.5rem">
+      ERP GRAPH INTELLIGENCE PLATFORM · SYSTEM ARCHITECTURE · FORWARD DEPLOYED ENGINEER ASSESSMENT
+    </div>
+    <div style="color:var(--text3);font-size:0.65rem">Built with intentional design decisions · Every component earns its place</div>
+  </div>
+</footer>
+
+</body>
+</html>
